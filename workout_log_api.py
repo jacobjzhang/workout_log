@@ -1,19 +1,19 @@
-from flask_sqlalchemy import SQLAlchemy
+import requests
+import json
+from datetime import datetime
 from flask import Flask, render_template, redirect, g, request, url_for, jsonify, Response, session
-
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/jake/Downloads/workout_log/workout_log.db'
 db = SQLAlchemy(app)
 
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
-    password = db.Column(db.Unicode(100))
-    units = db.Column(db.String(3))
-    workouts = db.relationship('Workout', backref='user', lazy='dynamic')
+# Models
+class Exercises(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50))
+    exercise = db.relationship('Exercise', backref='exercise', lazy='dynamic')
 
 class Workout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,20 +23,15 @@ class Workout(db.Model):
     bodyweight = db.Column(db.Numeric)
     exercises = db.relationship('Exercise', backref='workout', lazy='dynamic')
 
-class Exercises(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    exercise = db.relationship('Exercise', backref='exercise', lazy='dynamic')
-
 class Exercise(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     workout_id = db.Column(db.Integer, db.ForeignKey('workout.id'), primary_key=True)
     order = db.Column(db.Integer, primary_key=True)
     exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'))
     sets = db.relationship('Set', backref='exercise', lazy='dynamic')
 
 class Set(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     order = db.Column(db.Integer, primary_key=True)
     weight = db.Column(db.Numeric)
     reps = db.Column(db.Integer)
@@ -44,47 +39,29 @@ class Set(db.Model):
 
 @app.before_request
 def before_request():
-    g.user = None
-    if 'username' in session:
-        g.user = session['username']
+    url = 'https://wger.de/api/v2/exercise?status=2'
+    headers = {'Accept': 'application/json', 'Authorization': 'Token 8fafb5c8ad07910ec31754c657649a8559c311a7'}
+    r = requests.get(url=url, headers=headers)
+    
+    resp = r.content
+    exercises = json.loads(resp)['results']
+    exercise_names = [d['name'] for d in exercises]
+    for exercise in exercise_names:
+      exercise_record = Exercises(name=exercise)
+      db.session.add(exercise_record)
 
-@app.route('/login', methods=['POST'])
-def login():
-    user = User.query.filter_by(name=request.form['username'].encode('utf-8')).first()
+@app.route("/app.js")
+def app_js():
+    return redirect(url_for('static', filename='app.js'))
 
-    if user is not None:
-        if bcrypt.hashpw(request.form['pass'].encode('utf-8'), user.password.encode('utf-8')) == user.password.encode('utf-8'):
-            session['username'] = request.form['username']
-            return redirect(url_for('index'))
-
-        return 'Password is incorrect'
-
-    return 'User does not exist!'
-
-@app.route('/register', methods=['POST', 'GET'])
-def register():
-    if request.method == 'POST':
-        pending_user = request.form['username'].encode('utf-8')
-
-        username = User.query.filter_by(name=pending_user).first()
-
-        if username is None:
-            new_user = User(name=pending_user, password=bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt()))
-            db.session.add(new_user)
-            db.session.commit()
-
-            session['username'] = pending_user
-            return redirect(url_for('index'))
-
-
-    return render_template('register.html')
+@app.route("/")
+def home():
+    return render_template('index.html')      
 
 @app.route('/add_workout', methods=['POST', 'GET'])
 def add_workout():
     if request.method == 'POST':
-        user = User.query.filter_by(name=session['username']).first()
-
-        workout = Workout(date=datetime.utcnow(), user_id=user.id)
+        workout = Workout(date=datetime.utcnow(), user_id=1)
 
         exercise_count = int(request.form['exercise_count'])
 

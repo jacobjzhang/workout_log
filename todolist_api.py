@@ -13,9 +13,9 @@ app.config.from_object(__name__)
 @app.route('/add_workout', methods=['POST', 'GET'])
 def add_workout():
     if request.method == 'POST':
-        user = User.query.filter_by(name=session['username']).first()
+        # user = User.query.filter_by(name=session['username']).first()
 
-        workout = Workout(date=datetime.utcnow(), user_id=user.id)
+        workout = Workout(date=datetime.utcnow(), user_id=1)
 
         exercise_count = int(request.form['exercise_count'])
 
@@ -30,8 +30,8 @@ def add_workout():
                 work_set = Set(order=set_order, exercise=exercise, weight=weight, reps=rep)
                 set_order += 1
 
-        db.session.add(workout)
-        db.session.commit()
+        db.add(workout)
+        db.commit()
 
         return redirect(url_for('index'))
 

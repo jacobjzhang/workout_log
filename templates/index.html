@@ -1,76 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <title>Todo List Example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <style>
-        .done {
-            text-decoration: line-through;
-        }
-    </style>
+  <link rel="stylesheet" href="https://npmcdn.com/bootstrap@4.0.0-alpha.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser-polyfill.js"></script>
+  <script type="text/javascript" src="https://npmcdn.com/react@15/dist/react-with-addons.js"></script>
+  <script type="text/javascript" src="https://npmcdn.com/react-dom@15/dist/react-dom.js"></script>
+  <script src="https://npmcdn.com/reactstrap@2/dist/reactstrap.min.js"></script>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Workout Log</title>
 </head>
 
 <body>
-    <div class="container">
-        <h3>oh, so many things to do...</h3>
-        <table class='table'>
-            {% for entry in todolist %}
-            <tr>
-                <td {% if entry.status=='done' %} class='done' {% endif %}>{{ entry.what_to_do|safe }}</td>
-                <td>{{ entry.due_date|safe }}</td>
-                <td>
-                    <button onclick="location.href='/mark/{{entry.what_to_do|urlencode}}'">mark as done </button>
-                    <button onclick="location.href='/delete/{{entry.what_to_do|urlencode}}'">delete</button>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td>
-                    <em>Unbelievable. Nothing to do for now.</em>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-        <button onclick="toggle_entry_form();" id='toggle_button'>add a new item</button>
-    </div>
-
-    <div class="container">
-        <form action="/add" method="POST" id="add-form" style="display:none">
-            <div class="row">
-                <div class="col-sm-6">
-                    what to do:
-                    <input type="text" size="50" name="what_to_do" value="more homework?" />
-                </div>
-                <div class="col-sm-3">
-                    when:
-                    <input type="text" name="due_date" value="" />
-                </div>
-                <div class="col-sm-3">
-                    <input type="submit" value="save the new item" />
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        var show_entry_form = false;
-
-        function toggle_entry_form() {
-            if (show_entry_form) {
-                $('#add-form').hide();
-                $('#toggle_button').text("add a new item");
-            } else {
-                $('#add-form').show();
-                $('#toggle_button').text("cancel the new entry");
-            }
-            show_entry_form = !show_entry_form;
-        };
-    </script>
+  <div id="app"></div>
 </body>
 
+<script type="text/babel">
+const { Col, Button, Form, FormGroup, Label, Input, FormText } = Reactstrap;
+
+class Example extends React.Component {
+  render() {
+    return (
+      <Form>
+        <FormGroup>
+          <Label for="exampleEmail">Email</Label>
+          <Input type="email" name="email" id="exampleEmail" placeholder="with a placeholder" />
+        </FormGroup>
+        <FormGroup>
+          <Label for="examplePassword">Password</Label>
+          <Input type="password" name="password" id="examplePassword" placeholder="password placeholder" />
+        </FormGroup>
+        <FormGroup>
+          <Label for="exampleSelect">Select</Label>
+          <Input type="select" name="select" id="exampleSelect">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label for="exampleSelectMulti">Select Multiple</Label>
+          <Input type="select" name="selectMulti" id="exampleSelectMulti" multiple>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label for="exampleText">Text Area</Label>
+          <Input type="textarea" name="text" id="exampleText" />
+        </FormGroup>
+        <FormGroup>
+          <Label for="exampleFile">File</Label>
+          <Input type="file" name="file" id="exampleFile" />
+          <FormText color="muted">
+            This is some placeholder block-level help text for the above input.
+            It's a bit lighter and easily wraps to a new line.
+          </FormText>
+        </FormGroup>
+        <FormGroup tag="fieldset">
+          <legend>Radio Buttons</legend>
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="radio1" />{' '}
+              Option one is this and that—be sure to include why it's great
+            </Label>
+          </FormGroup>
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="radio1" />{' '}
+              Option two can be something else and selecting it will deselect option one
+            </Label>
+          </FormGroup>
+          <FormGroup check disabled>
+            <Label check>
+              <Input type="radio" name="radio1" disabled />{' '}
+              Option three is disabled
+            </Label>
+          </FormGroup>
+        </FormGroup>
+        <FormGroup check>
+          <Label check>
+            <Input type="checkbox" />{' '}
+            Check me out
+          </Label>
+        </FormGroup>
+        <Button>Submit</Button>
+      </Form>
+    );
+  }
+};
+
+ReactDOM.render(
+  <Col xs="6">
+    <Example name="Joe Schmoe"/>
+  </Col>,
+  document.getElementById('app')
+);
+
+</script>
 </html>
