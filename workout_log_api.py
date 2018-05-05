@@ -20,7 +20,7 @@ class Exercises(db.Model):
 class Workout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     notes = db.Column(db.Text)
     bodyweight = db.Column(db.Numeric)
     exercises = db.relationship('Exercise', backref='workout', lazy='dynamic')
@@ -70,7 +70,8 @@ def exercises():
 @app.route('/add_workout', methods=['POST', 'GET'])
 def add_workout():
     if request.method == 'POST':
-        workout = Workout(date=datetime.utcnow(), user_id=1)
+        print request
+        workout = Workout(date=datetime.utcnow())
 
         exercise_count = int(request.form['exercise_count'])
 
