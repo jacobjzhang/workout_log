@@ -3,8 +3,10 @@ import json
 from datetime import datetime
 from flask import Flask, render_template, redirect, g, request, url_for, jsonify, Response, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/jake/Downloads/workout_log/workout_log.db'
 db = SQLAlchemy(app)
@@ -56,7 +58,14 @@ def app_js():
 
 @app.route("/")
 def home():
-    return render_template('index.html')      
+    return render_template('index.html') 
+
+@app.route("/exercises")
+def exercises():
+    result = Exercises.query.all()
+    print result
+    exercises = [{'id': d.id, 'name': d.name} for d in result]
+    return jsonify(exercises)
 
 @app.route('/add_workout', methods=['POST', 'GET'])
 def add_workout():
