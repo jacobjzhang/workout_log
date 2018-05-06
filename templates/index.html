@@ -19,9 +19,82 @@
 </body>
 
 <script type="text/babel">
-const { Col, Button, Form, FormGroup, Label, Input, FormText } = Reactstrap;
+const { Col, Button, Form, FormGroup, Label, Input, FormText, Table } = Reactstrap;
 
-class Example extends React.Component {
+class WorkoutRow extends React.Component {
+  render() {
+    const set = this.props.set;
+
+    return(
+      <tr>
+        <th scope="row">{set.exercise.name}</th>
+        <td>{set.order}</td>
+        <td>{set.weight}</td>
+        <td>{set.reps}</td>
+      </tr>
+    )
+  }
+}
+
+class WorkoutTable extends React.Component {
+  render() {
+    const workout = this.props.workout;
+
+    return (
+      <Table>
+        <h1>Workout # {workout.id}</h1>
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Set #</th>
+            <th>Weight</th>
+            <th>Reps</th>
+          </tr>
+        </thead>
+        <tbody>
+          {workout.sets.map((set) => {
+            return <WorkoutRow set={set} />;
+          })}
+        </tbody>
+      </Table>
+    )
+  }
+}
+
+class Workouts extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      workouts: []
+    };
+  }
+
+  componentWillMount() {
+    fetch(`http://localhost:5001/workouts`)
+      .then((response) => response.json())
+      .then((responseJSON) => {
+        const exercises = responseJSON;
+        this.setState({ workouts });
+      });
+  }
+  
+  render() {
+    const workouts = this.state.workouts;
+
+    return (
+      <div>
+        {
+          workouts.map((workout) => {
+            return <WorkoutTable workout={workout} />;
+          })
+        }
+      </div>
+    )
+  }
+}
+
+class AddWorkout extends React.Component {
   constructor(props) {
     super(props);
 
@@ -34,18 +107,28 @@ class Example extends React.Component {
     fetch(`http://localhost:5001/exercises`)
       .then((response) => response.json())
       .then((responseJSON) => {
-        // do stuff with responseJSON here...
         const exercises = responseJSON;
         this.setState({ exercises });
       });
   }
+
+  handleSubmit(event) {
+    event.preventDefault();
+
+    const data = new FormData(event.target);
+    
+    fetch('http://localhost:5001/add_workout', {
+      method: 'POST',
+      body: data,
+    });
+  }  
   
   render() {
     const exerciseOptions = this.state.exercises.map((ex) => {
       return <option value={ex.id}>{ex.name}</option>
     });
     return (
-      <Form method="POST" action="http://localhost:5001/add_workout">
+      <Form method="POST" action="http://localhost:5001/add_workout" onSubmit={this.handleSubmit}>
         <FormGroup>
           <Label for="exercise1">Select</Label>
           <Input type="select" name="exercise1" id="exercise1">
@@ -73,7 +156,8 @@ class Example extends React.Component {
 
 ReactDOM.render(
   <Col xs="6">
-    <Example name="Joe Schmoe"/>
+    <Workouts />
+    <AddWorkout />
   </Col>,
   document.getElementById('app')
 );
