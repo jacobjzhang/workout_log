@@ -21,13 +21,13 @@
 <script type="text/babel">
 const { Col, Button, Form, FormGroup, Label, Input, FormText, Table } = Reactstrap;
 
-class WorkoutRow extends React.Component {
+class WorkoutSet extends React.Component {
   render() {
     const set = this.props.set;
 
     return(
       <tr>
-        <th scope="row">{set.exercise.name}</th>
+        <th scope="row">{set.exercise_id}</th>
         <td>{set.order}</td>
         <td>{set.weight}</td>
         <td>{set.reps}</td>
@@ -41,22 +41,26 @@ class WorkoutTable extends React.Component {
     const workout = this.props.workout;
 
     return (
-      <Table>
+      <div>
         <h1>Workout # {workout.id}</h1>
-        <thead>
-          <tr>
-            <th>Exercise</th>
-            <th>Set #</th>
-            <th>Weight</th>
-            <th>Reps</th>
-          </tr>
-        </thead>
-        <tbody>
-          {workout.sets.map((set) => {
-            return <WorkoutRow set={set} />;
-          })}
-        </tbody>
-      </Table>
+        <Table>
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Set #</th>
+              <th>Weight</th>
+              <th>Reps</th>
+            </tr>
+          </thead>
+          <tbody>
+            {workout.exercises.map((exercise) => {
+              return exercise.sets.map((set) => {
+                return <WorkoutSet set={set} />;
+              })
+            })}
+          </tbody>
+        </Table>
+      </div>
     )
   }
 }
@@ -74,7 +78,7 @@ class Workouts extends React.Component {
     fetch(`http://localhost:5001/workouts`)
       .then((response) => response.json())
       .then((responseJSON) => {
-        const exercises = responseJSON;
+        const workouts = responseJSON;
         this.setState({ workouts });
       });
   }
