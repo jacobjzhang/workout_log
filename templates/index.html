@@ -98,12 +98,45 @@ class Workouts extends React.Component {
   }
 }
 
+class AddSet extends React.Component {
+  render() {
+    const setNum = this.props.setNum;
+
+    const exNum = `exercise${setNum}`;
+    const weightNum = `weight${setNum}`;
+    const repsNum = `reps${setNum}`;
+
+    return(
+      <div>
+        <h4>Set #{setNum}</h4>
+        <FormGroup>
+          <Label for={exNum}>Select</Label>
+          <Input type="select" name={exNum} id={exNum}>
+            {this.props.exerciseOptions}
+          </Input>
+        </FormGroup>
+
+        <FormGroup>
+          <Label for={weightNum}>Weight</Label>
+          <Input type="text" name={weightNum} id={weightNum} placeholder="__ lbs" />
+        </FormGroup>
+
+        <FormGroup>
+          <Label for={repsNum}>Reps</Label>
+          <Input type="text" name="reps" id={repsNum} placeholder="__ reps" />
+        </FormGroup>
+      </div>
+    )
+  }
+}
+
 class AddWorkout extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      exercises: []
+      exercises: [],
+      numSets: 1
     };
   }
 
@@ -114,6 +147,12 @@ class AddWorkout extends React.Component {
         const exercises = responseJSON;
         this.setState({ exercises });
       });
+  }
+
+  addSet(event) {
+    console.log(this.state)
+    const currentSets = this.state.numSets;
+    this.setState({numSets: currentSets + 1});
   }
 
   handleSubmit(event) {
@@ -131,28 +170,23 @@ class AddWorkout extends React.Component {
     const exerciseOptions = this.state.exercises.map((ex) => {
       return <option value={ex.id}>{ex.name}</option>
     });
+
+    let setsToAdd = [];
+    console.log(this.state.numSets)
+    for (let i = 0; i < this.state.numSets; i++) {
+      setsToAdd.push(<AddSet setNum={i} exerciseOptions={exerciseOptions} />)
+    }
+
     return (
       <Form method="POST" action="http://localhost:5001/add_workout" onSubmit={this.handleSubmit}>
-        <FormGroup>
-          <Label for="exercise1">Select</Label>
-          <Input type="select" name="exercise1" id="exercise1">
-            {exerciseOptions}
-          </Input>
-        </FormGroup>
 
-        <FormGroup>
-          <Label for="weight1">Weight</Label>
-          <Input type="text" name="weight1" id="weight1" placeholder="__ lbs" />
-        </FormGroup>
-
-        <FormGroup>
-          <Label for="reps1">Reps</Label>
-          <Input type="text" name="reps" id="reps1" placeholder="__ reps" />
-        </FormGroup>
+        {setsToAdd}
 
         <input type="hidden" name="exercise_count" value="1" />
 
         <Button>Submit</Button>
+
+        <Button onClick={() => this.addSet()}>Add Set</Button>
       </Form>
     );
   }
