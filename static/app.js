@@ -1,137 +1,180 @@
-const {
-  Button,
-  ButtonDropdown,
-  ButtonGroup,
-  ButtonToolbar,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  TetherContent,
-  Tooltip
-} = Reactstrap;
+const { Col, Button, Form, FormGroup, Label, Input, FormText, Table } = Reactstrap;
 
-class HelloWorldComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      dd1: false,
-      tetherConfig: {
-        target: '#tether',
-        attachment: 'middle left',
-        targetAttachment: 'middle right',
-        classPrefix: 'bs-tether',
-        classes: { element: 'popover', enabled: 'open' },
-        constraints: [
-          { to: 'scrollParent', attachment: 'together none' },
-          { to: 'window', attachment: 'together none' }
-        ]
-      }
-    };
-    this.dropdownToggle = this.dropdownToggle.bind(this);
-  }
-  
-  dropdownToggle() {
-    this.setState({
-      dd1: !this.state.dd1
-    });
-  }
-  
+class WorkoutSet extends React.Component {
   render() {
-    return (      
-      <div>
-        <h3>Buttons</h3> 
-        <p>
-          <Button color="primary">primary</Button>&nbsp;
-          <Button color="secondary">secondary</Button>&nbsp;
-          <Button color="success">success</Button>&nbsp;
-          <Button color="info">info</Button>&nbsp;
-          <Button color="warning">warning</Button>&nbsp;
-          <Button color="danger">danger</Button>
-          <Button color="link">link</Button>
-        </p>
-        <hr/>
-        <h3>Tether Content</h3>
-        <p>
-          <Button color="primary" id="tether" onClick={() => {this.setState({ tc: !this.state.tc })}}>Tether Target</Button>
-          <TetherContent tether={this.state.tetherConfig} isOpen={this.state.tc} toggle={() => {this.setState({ tc: !this.state.tc })}}>
-            <div>
-              <div className="popover-arrow"></div>
-              <h3 className="popover-title">Tether Content</h3>
-              <div className="popover-content">
-                <p>Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
-                <Button color="danger" onClick={() => {this.setState({ tc: !this.state.tc })}}>Confirm</Button>
-              </div>
-            </div>
-          </TetherContent>
-        </p>
-        <hr/>
-        <h3>Dropdown</h3> 
-        <Dropdown className="m-b-1" isOpen={this.state.dd1} toggle={this.dropdownToggle}>
-          <DropdownToggle>
-            <Button color="danger">Default</Button>
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem header>Header</DropdownItem>
-            <DropdownItem disabled>Action</DropdownItem>
-            <DropdownItem>Another Action</DropdownItem>
-            <DropdownItem divider/>
-            <DropdownItem>Another Action</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <p>Toggle these tether examples and resize the window height to see the dropdown switch orientation</p>
-        <Dropdown tether className="m-y-1" isOpen={this.state.dd4} toggle={() => { this.setState({ dd4: !this.state.dd4 })}}>
-          <DropdownToggle caret>
-            <Button color="primary">Tether</Button>
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem header>Header</DropdownItem>
-            <DropdownItem disabled>Action</DropdownItem>
-            <DropdownItem>Another Action</DropdownItem>
-            <DropdownItem divider/>
-            <DropdownItem>Another Action</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <Dropdown tether={{ target: '#caret' }} className="m-b-1 btn-group" isOpen={this.state.dd3} toggle={() => { this.setState({ dd3: !this.state.dd3 });}}>
-          <Button id="caret" color="danger">Caret Is Toggle</Button>
-          <DropdownToggle caret>
-            <Button color="danger"><span className="sr-only">Toggle Dropdown</span></Button>
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem header>Header</DropdownItem>
-            <DropdownItem>Action</DropdownItem>
-            <DropdownItem>Another Action</DropdownItem>
-            <DropdownItem divider/>
-            <DropdownItem>Another Action</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <hr/>
-        <h3>Tooltips</h3>
-        <p>
-          <Button color="secondary" id="tooltip-top">Top</Button>&nbsp;
-          <Button color="secondary" id="tooltip-bottom">Bottom</Button>&nbsp;
-          <Button color="secondary" id="tooltip-left">Left</Button>&nbsp;
-          <Button color="secondary" id="tooltip-right">Right</Button>&nbsp;
-        </p>
-        <Tooltip placement="top" isOpen={this.state.tooltip1} target="tooltip-top" toggle={() => { this.setState({ tooltip1: !this.state.tooltip1 })}}>
-          Tooltip Content
-        </Tooltip>
-        <Tooltip placement="bottom" isOpen={this.state.tooltip2} target="tooltip-bottom" toggle={() => { this.setState({ tooltip2: !this.state.tooltip2 })}}>
-          Tooltip Content
-        </Tooltip>
-        <Tooltip placement="right" isOpen={this.state.tooltip3} target="tooltip-right" toggle={() => { this.setState({ tooltip3: !this.state.tooltip3})}}>
-          Tooltip Content
-        </Tooltip>
-        <Tooltip placement="left" isOpen={this.state.tooltip4} target="tooltip-left" toggle={() => { this.setState({ tooltip4: !this.state.tooltip4})}}>
-          Tooltip Content
-        </Tooltip>
-      </div>
-    );
+    const set = this.props.set;
+
+    return(
+      <tr>
+        <th scope="row">{set.exercise_id}</th>
+        <td>{set.order}</td>
+        <td>{set.weight}</td>
+        <td>{set.reps}</td>
+      </tr>
+    )
   }
 }
 
+class WorkoutTable extends React.Component {
+  render() {
+    const workout = this.props.workout;
+
+    return (
+      <div>
+        <h1>Workout # {workout.id}</h1>
+        <Table>
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Set #</th>
+              <th>Weight</th>
+              <th>Reps</th>
+            </tr>
+          </thead>
+          <tbody>
+            {workout.exercises.map((exercise) => {
+              return exercise.sets.map((set) => {
+                return <WorkoutSet set={set} />;
+              })
+            })}
+          </tbody>
+        </Table>
+      </div>
+    )
+  }
+}
+
+class Workouts extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      workouts: []
+    };
+  }
+
+  componentWillMount() {
+    fetch(`http://localhost:5001/workouts`)
+      .then((response) => response.json())
+      .then((responseJSON) => {
+        const workouts = responseJSON;
+        this.setState({ workouts });
+      });
+  }
+  
+  render() {
+    const workouts = this.state.workouts;
+
+    return (
+      <div>
+        {
+          workouts.map((workout) => {
+            return <WorkoutTable workout={workout} />;
+          })
+        }
+      </div>
+    )
+  }
+}
+
+class AddSet extends React.Component {
+  render() {
+    const setNum = this.props.setNum;
+
+    const exNum = `exercise${setNum}`;
+    const weightNum = `weight${setNum}`;
+    const repsNum = `reps${setNum}`;
+
+    return(
+      <div>
+        <h4>Set #{setNum}</h4>
+        <FormGroup>
+          <Label for={exNum}>Select</Label>
+          <Input type="select" name={exNum} id={exNum}>
+            {this.props.exerciseOptions}
+          </Input>
+        </FormGroup>
+
+        <FormGroup>
+          <Label for={weightNum}>Weight</Label>
+          <Input type="text" name={weightNum} id={weightNum} placeholder="__ lbs" />
+        </FormGroup>
+
+        <FormGroup>
+          <Label for={repsNum}>Reps</Label>
+          <Input type="text" name="reps" id={repsNum} placeholder="__ reps" />
+        </FormGroup>
+      </div>
+    )
+  }
+}
+
+class AddWorkout extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      exercises: [],
+      numSets: 1
+    };
+  }
+
+  componentWillMount() {
+    fetch(`http://localhost:5001/exercises`)
+      .then((response) => response.json())
+      .then((responseJSON) => {
+        const exercises = responseJSON;
+        this.setState({ exercises });
+      });
+  }
+
+  addSet(event) {
+    console.log(this.state)
+    const currentSets = this.state.numSets;
+    this.setState({numSets: currentSets + 1});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+
+    const data = new FormData(event.target);
+    
+    fetch('http://localhost:5001/add_workout', {
+      method: 'POST',
+      body: data,
+    });
+  }  
+  
+  render() {
+    const exerciseOptions = this.state.exercises.map((ex) => {
+      return <option value={ex.id}>{ex.name}</option>
+    });
+
+    let setsToAdd = [];
+    console.log(this.state.numSets)
+    for (let i = 0; i < this.state.numSets; i++) {
+      setsToAdd.push(<AddSet setNum={i} exerciseOptions={exerciseOptions} />)
+    }
+
+    return (
+      <Form method="POST" action="http://localhost:5001/add_workout" onSubmit={this.handleSubmit}>
+
+        {setsToAdd}
+
+        <input type="hidden" name="exercise_count" value="1" />
+
+        <Button>Submit</Button>
+
+        <Button onClick={() => this.addSet()}>Add Set</Button>
+      </Form>
+    );
+  }
+};
+
 ReactDOM.render(
-  <HelloWorldComponent name="Joe Schmoe"/>,
+  <Col xs="6">
+    <Workouts />
+    <AddWorkout />
+  </Col>,
   document.getElementById('app')
 );
